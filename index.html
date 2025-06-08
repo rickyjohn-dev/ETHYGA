@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,63 +10,82 @@
       --bg-color: #f4f4f4;
       --text-color: #333;
       --container-bg: #fff;
-    }body.dark {
-  --bg-color: #121212;
-  --text-color: #f0f0f0;
-  --container-bg: #1e1e1e;
-}
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.3s, color 0.3s;
-}
-.container {
-  max-width: 800px;
-  margin: auto;
-  background: var(--container-bg);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-textarea {
-  width: 100%;
-  height: 200px;
-  padding: 10px;
-  font-size: 1rem;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  color: #000;
-}
-body.dark textarea {
-  background-color: #2a2a2a;
-  color: #fff;
-  border: 1px solid #555;
-}
-.score {
-  margin-top: 10px;
-  font-weight: bold;
-}
-.highlight {
-  background-color: #ffe9e9;
-  border-radius: 3px;
-  padding: 2px 4px;
-}
-.toggle-btn, .export-btn {
-  margin: 5px 5px 15px 0;
-  padding: 6px 12px;
-  cursor: pointer;
-  background: #444;
-  color: white;
-  border: none;
-  border-radius: 4px;
-}
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --container-bg: #1e1e1e;
+    }
 
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: var(--container-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 10px;
+      font-size: 1rem;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      color: #000;
+    }
+    body.dark textarea {
+      background-color: #2a2a2a;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    .score {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .tone {
+      margin: 10px 0;
+      font-weight: bold;
+      padding: 6px 10px;
+      border-radius: 5px;
+      display: inline-block;
+      color: white;
+    }
+    .tone.positive {
+      background-color: #28a745;
+    }
+    .tone.neutral {
+      background-color: #ffc107;
+      color: #333;
+    }
+    .tone.negative {
+      background-color: #dc3545;
+    }
+    .highlight {
+      background-color: #ffe9e9;
+      border-radius: 3px;
+      padding: 2px 4px;
+    }
+    .toggle-btn, .export-btn {
+      margin: 5px 5px 15px 0;
+      padding: 6px 12px;
+      cursor: pointer;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -74,12 +94,17 @@ body.dark textarea {
     <button class="export-btn" onclick="exportText()">Export as .txt</button>
     <button class="export-btn" onclick="exportPDF()">Export as PDF</button>
     <h1>EHTYGA Ethical Analyzer</h1>
-    <p>Type your content below. EHTYGA will highlight manipulative rhetoric and score its ethical strength.</p>
+    <p>Type your content below. EHTYGA will highlight manipulative rhetoric, score ethical strength, and show tone.</p>
     <textarea id="input" oninput="analyzeContent()" placeholder="Start typing your content here..."></textarea>
     <div class="score" id="scoreOutput"></div>
+    <div id="toneOutput"></div>
     <div id="highlightedText"></div>
-  </div>  <script>
+  </div>
+
+  <script>
     const redFlags = ["limited time", "only a few", "act now", "hurry", "don't miss", "fear", "urgent", "last chance"];
+    const positiveWords = ["good", "great", "excellent", "positive", "happy", "joy", "love", "success"];
+    const negativeWords = ["bad", "terrible", "poor", "negative", "sad", "anger", "hate", "fail"];
 
     function analyzeContent() {
       const input = document.getElementById("input").value;
@@ -95,6 +120,29 @@ body.dark textarea {
       });
 
       document.getElementById("scoreOutput").textContent = `Ethical Score: ${score}/100`;
+
+      // Tone analysis (simple heuristic)
+      let positiveCount = 0;
+      let negativeCount = 0;
+
+      const words = input.toLowerCase().split(/\W+/);
+      words.forEach(word => {
+        if (positiveWords.includes(word)) positiveCount++;
+        if (negativeWords.includes(word)) negativeCount++;
+      });
+
+      let tone = "Neutral";
+      let toneClass = "neutral";
+      if (positiveCount > negativeCount) {
+        tone = "Positive";
+        toneClass = "positive";
+      } else if (negativeCount > positiveCount) {
+        tone = "Negative";
+        toneClass = "negative";
+      }
+
+      document.getElementById("toneOutput").innerHTML = `<div class="tone ${toneClass}">Tone: ${tone}</div>`;
+
       document.getElementById("highlightedText").innerHTML = markedText;
     }
 
@@ -105,7 +153,8 @@ body.dark textarea {
     function exportText() {
       const content = document.getElementById("input").value;
       const score = document.getElementById("scoreOutput").textContent;
-      const blob = new Blob([score + "\n\n" + content], { type: "text/plain" });
+      const tone = document.getElementById("toneOutput").textContent;
+      const blob = new Blob([score + "\n" + tone + "\n\n" + content], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -120,11 +169,13 @@ body.dark textarea {
       const doc = new jsPDF();
       const content = document.getElementById("input").value;
       const score = document.getElementById("scoreOutput").textContent;
-      const finalText = `${score}\n\n${content}`;
+      const tone = document.getElementById("toneOutput").textContent;
+      const finalText = `${score}\n${tone}\n\n${content}`;
       doc.setFontSize(12);
       const lines = doc.splitTextToSize(finalText, 180);
       doc.text(lines, 10, 10);
       doc.save("EHTYGA_Ethical_Analysis.pdf");
     }
-  </script></body>
+  </script>
+</body>
 </html>
