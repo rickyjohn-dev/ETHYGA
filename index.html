@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EHTYGA – Ethical Content Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>EHTYGA</h1>
+    <p><em>Ethical Content Generator</em></p>
+
+    <label for="contentType">Select Content Type:</label>
+    <select id="contentType">
+      <option value="email">Email Subject Line</option>
+      <option value="landing">Landing Page Headline</option>
+      <option value="social">Social Media Post</option>
+    </select>
+
+    <label for="intent">Marketing Intent:</label>
+    <input type="text" id="intent" placeholder="e.g. boost signups, announce a sale" />
+
+    <button id="generateBtn">Generate Content</button>
+
+    <h2>Generated Content:</h2>
+    <div id="output"></div>
+
+    <h2>Ethics Review:</h2>
+    <div id="ethics"></div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
