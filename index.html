@@ -1,35 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EHTYGA – Ethical Content Generator</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>EHTYGA - Ethical Content Tool</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #f4f4f4;
+      --text-color: #333;
+      --container-bg: #fff;
+    }body.dark {
+  --bg-color: #121212;
+  --text-color: #f0f0f0;
+  --container-bg: #1e1e1e;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: var(--container-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+textarea {
+  width: 100%;
+  height: 200px;
+  padding: 10px;
+  font-size: 1rem;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #000;
+}
+body.dark textarea {
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #555;
+}
+.score {
+  margin-top: 10px;
+  font-weight: bold;
+}
+.highlight {
+  background-color: #ffe9e9;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+.toggle-btn, .export-btn {
+  margin: 5px 5px 15px 0;
+  padding: 6px 12px;
+  cursor: pointer;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>EHTYGA</h1>
-    <p><em>Ethical Content Generator</em></p>
+    <button class="toggle-btn" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <button class="export-btn" onclick="exportText()">Export as .txt</button>
+    <button class="export-btn" onclick="exportPDF()">Export as PDF</button>
+    <h1>EHTYGA Ethical Analyzer</h1>
+    <p>Type your content below. EHTYGA will highlight manipulative rhetoric and score its ethical strength.</p>
+    <textarea id="input" oninput="analyzeContent()" placeholder="Start typing your content here..."></textarea>
+    <div class="score" id="scoreOutput"></div>
+    <div id="highlightedText"></div>
+  </div>  <script>
+    const redFlags = ["limited time", "only a few", "act now", "hurry", "don't miss", "fear", "urgent", "last chance"];
 
-    <label for="contentType">Select Content Type:</label>
-    <select id="contentType">
-      <option value="email">Email Subject Line</option>
-      <option value="landing">Landing Page Headline</option>
-      <option value="social">Social Media Post</option>
-    </select>
+    function analyzeContent() {
+      const input = document.getElementById("input").value;
+      let score = 100;
+      let markedText = input;
 
-    <label for="intent">Marketing Intent:</label>
-    <input type="text" id="intent" placeholder="e.g. boost signups, announce a sale" />
+      redFlags.forEach(flag => {
+        const regex = new RegExp(`\\b(${flag})\\b`, "gi");
+        if (regex.test(input)) {
+          score -= 10;
+          markedText = markedText.replace(regex, '<span class="highlight">$1</span>');
+        }
+      });
 
-    <button id="generateBtn">Generate Content</button>
+      document.getElementById("scoreOutput").textContent = `Ethical Score: ${score}/100`;
+      document.getElementById("highlightedText").innerHTML = markedText;
+    }
 
-    <h2>Generated Content:</h2>
-    <div id="output"></div>
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+    }
 
-    <h2>Ethics Review:</h2>
-    <div id="ethics"></div>
-  </div>
+    function exportText() {
+      const content = document.getElementById("input").value;
+      const score = document.getElementById("scoreOutput").textContent;
+      const blob = new Blob([score + "\n\n" + content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "EHTYGA_Ethical_Analysis.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
 
-  <script src="main.js"></script>
-</body>
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const content = document.getElementById("input").value;
+      const score = document.getElementById("scoreOutput").textContent;
+      const finalText = `${score}\n\n${content}`;
+      doc.setFontSize(12);
+      const lines = doc.splitTextToSize(finalText, 180);
+      doc.text(lines, 10, 10);
+      doc.save("EHTYGA_Ethical_Analysis.pdf");
+    }
+  </script></body>
 </html>
